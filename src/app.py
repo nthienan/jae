@@ -65,8 +65,10 @@ def register(jae_collector: JaeCollector, opts):
 
     # register sub-collectors here
     if opts.storage_info:
+        logging.info("Register storage info collector")
         jae_collector.register(StorageInfoCollector(artifactory))
     if opts.users:
+        logging.info("Register users collector")
         jae_collector.register(UserCollector(artifactory))
 
 

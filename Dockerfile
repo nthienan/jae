@@ -19,6 +19,6 @@ RUN apk --no-cache update && \
 
 COPY --from=builder /usr/src/app/dist/jae*.whl .
 RUN pip install --no-cache-dir jae*.whl && \
-    rm -f jfrog_artifactory_exporter*.whl
+    rm -f jae*.whl
 
 ENTRYPOINT ["jae"]
