@@ -16,7 +16,7 @@ after_success:
   - docker images
 
 before_deploy:
-  - pip install --user docker-ci-deploy
+  - pip install docker-ci-deploy
   - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
 deploy:
   - provider: script
