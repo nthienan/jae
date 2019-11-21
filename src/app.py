@@ -50,11 +50,10 @@ def parse_opts(args):
     parser.add_argument("--port", "-p", env="JAE_PORT", default=8998, dest="port", action=EnvAction,
                         help="The port that JAE will listen on. Default is 8998")
 
-    parser.add_argument("--storage-info", dest="storage_info", action="store_false",
-                        help="Storage summary information regarding binaries, file store and repositories. "
-                             "Requires a privileged user (Admin only)")
+    parser.add_argument("--storage-info", dest="storage_info", action="store_true",
+                        help="Storage summary information regarding binaries, file store and repositories. Requires a privileged user (Admin only)")
 
-    parser.add_argument("--users", dest="users", action="store_false",
+    parser.add_argument("--users", dest="users", action="store_true",
                         help="Get number of users by realm. Requires a privileged user (Admin only)")
 
     return parser.parse_args(args)
@@ -95,7 +94,3 @@ def main():
 
     start_http_server(int(opts.port))
     sys.exit(scheduler.wait())
-
-
-if __name__ == "__main__":
-    main()
