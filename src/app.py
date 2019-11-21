@@ -8,7 +8,7 @@ from argparse import Action
 from prometheus_client import REGISTRY, start_http_server
 
 from .artifactory import Artifactory
-from .collector import JaeCollector, StorageInfoCollector
+from .collector import JaeCollector, StorageInfoCollector, UserCollector
 from .schedule import Scheduler
 
 
@@ -50,7 +50,24 @@ def parse_opts(args):
     parser.add_argument("--port", "-p", env="JAE_PORT", default=8998, dest="port", action=EnvAction,
                         help="The port that JAE will listen on. Default is 8998")
 
+    parser.add_argument("--storage-info", dest="storage_info", action="store_false",
+                        help="Storage summary information regarding binaries, file store and repositories. "
+                             "Requires a privileged user (Admin only)")
+
+    parser.add_argument("--users", dest="users", action="store_false",
+                        help="Get number of users by realm. Requires a privileged user (Admin only)")
+
     return parser.parse_args(args)
+
+
+def register(jae_collector: JaeCollector, opts):
+    artifactory = Artifactory(opts.url, opts.access_token, **{"verify": opts.ignore_ssl})
+
+    # register sub-collectors here
+    if opts.storage_info:
+        jae_collector.register(StorageInfoCollector(artifactory))
+    if opts.users:
+        jae_collector.register(UserCollector(artifactory))
 
 
 def main():
@@ -65,10 +82,8 @@ def main():
 
     signal.signal(signal.SIGTERM, sigterm_handler)
 
-    artifactory = Artifactory(opts.url, opts.access_token, **{"verify": opts.ignore_ssl})
     jae_collector = JaeCollector()
-    # register sub-collectors here
-    jae_collector.register(StorageInfoCollector(artifactory))
+    register(jae_collector, opts)
 
     # register jae to Prometheus registry
     REGISTRY.register(jae_collector)

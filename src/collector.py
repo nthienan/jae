@@ -1,16 +1,15 @@
 import logging
 from abc import ABC, abstractmethod
-from threading import RLock
 
 from prometheus_client import Gauge
 
+from .artifactory import Artifactory
 from .utility import str_to_megabytes, str_to_int
 
 
 class JaeCollector:
 
     def __init__(self):
-        self._rlock = RLock()
         self._cached_metrics = []
         self._collectors = []
 
@@ -21,16 +20,17 @@ class JaeCollector:
         return self._cached_metrics
 
     def run(self):
-        # with self._rlock:
         new_data = []
         for c in self._collectors:
+            logging.debug("%s is running..." % c.name)
             new_data.extend(c.run())
+            logging.debug("%s has been successfully run" % c.name)
         self._cached_metrics = new_data
 
 
 class Collector(ABC):
 
-    def __init__(self, artifactory):
+    def __init__(self, artifactory: Artifactory):
         self._artifactory = artifactory
 
     @abstractmethod
@@ -38,11 +38,33 @@ class Collector(ABC):
         raise NotImplemented()
 
 
+class UserCollector(Collector):
+
+    def __init__(self, artifactory):
+        super().__init__(artifactory)
+        self.name = "user_collector"
+        self.user_gauge = Gauge("artifactory_users", "Number of users", ["realm"])
+
+    def run(self):
+        logging.debug("Starting collect storage info...")
+        users = self._artifactory.get_users()
+        internal = 0
+        ldap = 0
+        for u in users:
+            if u["realm"] == "internal":
+                internal += 1
+            elif u["realm"] == "ldap":
+                ldap += 1
+        self.user_gauge.labels("internal").set(internal)
+        self.user_gauge.labels("ldap").set(ldap)
+        return self.user_gauge.collect()
+
+
 class StorageInfoCollector(Collector):
 
     def __init__(self, artifactory):
         super().__init__(artifactory)
-        self._name = "storage_collector"
+        self.name = "storage_collector"
         self.binaries_count = Gauge("artifactory_storage_binaries_count",
                                     "Number of binaries")
         self.binaries_size = Gauge("artifactory_storage_binaries_size_megabytes",

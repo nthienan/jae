@@ -19,3 +19,10 @@ class Artifactory:
         res = requests.get(url=url, headers=self.authenticate_header, **self.kwargs)
         res.raise_for_status()
         return res.json()
+
+    def get_users(self):
+        logging.debug("Getting users info...")
+        url = "%s/api/security/users" % self.url
+        res = requests.get(url=url, headers=self.authenticate_header, **self.kwargs)
+        res.raise_for_status()
+        return res.json()
