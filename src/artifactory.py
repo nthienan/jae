@@ -26,3 +26,10 @@ class Artifactory:
         res = requests.get(url=url, headers=self.authenticate_header, **self.kwargs)
         res.raise_for_status()
         return res.json()
+
+    def get_version(self):
+        logging.debug("Getting version info...")
+        url = "%s/api/system/version" % self.url
+        res = requests.get(url=url, headers=self.authenticate_header, **self.kwargs)
+        res.raise_for_status()
+        return res.json()

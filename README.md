@@ -3,6 +3,7 @@
 ```
 usage: jae [-h] --url URL --access-token ACCESS_TOKEN [--interval INTERVAL]
            [--ignore-ssl-verification] [--log-level LOG_LEVEL] [--port PORT]
+           [--storage-info] [--users]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -16,4 +17,9 @@ optional arguments:
                         Log level. It can be DEBUG, INFO, WARNING, ERROR,
                         CRITICAL. Default is INFO
   --port PORT, -p PORT  The port that JAE will listen on. Default is 8998
+  --storage-info        Storage summary information regarding binaries, file
+                        store and repositories. Requires a privileged user
+                        (Admin only)
+  --users               Get number of users by realm. Requires a privileged
+                        user (Admin only)
 ```

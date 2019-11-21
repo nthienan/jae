@@ -38,6 +38,19 @@ class Collector(ABC):
         raise NotImplemented()
 
 
+class VersionCollector(Collector):
+
+    def __init__(self, artifactory):
+        super().__init__(artifactory)
+        self.name = "version_collector"
+        self.version_gauge = Gauge("artifactory_system_version", "Artifactory version", ["version"])
+
+    def run(self):
+        data = self._artifactory.get_version()
+        self.version_gauge.labels(data["version"]).set(data["revision"])
+        return self.version_gauge.collect()
+
+
 class UserCollector(Collector):
 
     def __init__(self, artifactory):
