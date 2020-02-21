@@ -11,6 +11,8 @@ install: true
 before_script:
   - docker pull $IMAGE_NAME || true
 script:
+  - pip install -r requirements-dev.txt
+  - coverage run -m xmlrunner discover -s tests -o build/unittest-reports
   - docker build --pull --cache-from $IMAGE_NAME --tag $IMAGE_NAME .
 after_success:
   - docker images
